@@ -10,17 +10,11 @@ import com.example.wewatch.model.MovieEntity
 @Dao
 interface MovieDao {
     @Query("SELECT * FROM movies")
-    suspend fun getAll(): List<MovieEntity>
+    suspend fun getAllMovies(): List<MovieEntity>
 
     @Insert
     suspend fun insert(movie: MovieEntity)
 
     @Delete
     suspend fun delete(movie: MovieEntity)
-
-    @Query("DELETE FROM movies WHERE isChecked = 1")
-    suspend fun deleteChecked()
-
-    @Update
-    suspend fun update(movie: MovieEntity)
 }
