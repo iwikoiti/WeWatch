@@ -3,6 +3,7 @@ package com.example.wewatch.api
 import com.example.wewatch.model.MovieEntity
 import com.google.gson.annotations.SerializedName
 
+//парсинг JSON ответов от OMDB API
 data class ApiResponse(
     @SerializedName("Response") val response: String,
     // Error
