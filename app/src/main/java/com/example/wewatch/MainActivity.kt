@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import com.example.wewatch.database.MovieDatabase
 import com.example.wewatch.model.MovieEntity
+import com.example.wewatch.screens.navigation.AppNavigation
 import com.example.wewatch.ui.theme.WeWatchTheme
 import kotlinx.coroutines.launch
 
@@ -30,10 +31,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             WeWatchTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(
-                        movies = movies,
-                        onAddClick = { },
-                        modifier = Modifier.padding(innerPadding)
+                    AppNavigation(
+                        movies = movies
                     )
                 }
             }
@@ -46,13 +45,4 @@ class MainActivity : ComponentActivity() {
         }
 
     }
-}
-
-@Composable
-fun MainScreen(
-    movies: List<MovieEntity>,
-    onAddClick: () -> Unit,
-    modifier: Modifier = Modifier
-){
-
 }
