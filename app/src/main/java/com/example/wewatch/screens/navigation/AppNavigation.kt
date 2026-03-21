@@ -1,6 +1,13 @@
 package com.example.wewatch.screens.navigation
 
 import android.util.Log
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +37,6 @@ fun AppNavigation(
 ) {
 
     val navController = rememberNavController()
-    val scope = rememberCoroutineScope()
     var selectedMovieFromSearch by remember { mutableStateOf<MovieEntity?>(null) }
 
     // Для отладки - смотрим текущий стек
@@ -39,7 +45,33 @@ fun AppNavigation(
     }
 
     NavHost(navController, startDestination = "main",  modifier = modifier) {
-        composable("main") {
+        composable(
+            route = "main",
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { -it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            }
+        ) {
             Log.d("Navigation", "MainScreen composable")
             MainScreen(
                 movies = movies,
@@ -51,7 +83,33 @@ fun AppNavigation(
             )
         }
 
-        composable("add") {
+        composable(
+            route = "add",
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { -it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            }
+        ) {
             Log.d("Navigation", "AddScreen composable, selectedMovie = $selectedMovieFromSearch")
             AddScreen(
                 selectedMovie = selectedMovieFromSearch,
@@ -78,7 +136,31 @@ fun AppNavigation(
             arguments = listOf(
                 navArgument("title") { type = NavType.StringType },
                 navArgument("year") { type = NavType.StringType }
-            )
+            ),
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { -it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            }
         ) { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title") ?: ""
             val year = backStackEntry.arguments?.getString("year")?.takeIf { it.isNotBlank() }
