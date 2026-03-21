@@ -1,18 +1,16 @@
 package com.example.wewatch.screens.navigation
 
 import android.util.Log
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -24,7 +22,6 @@ import com.example.wewatch.model.MovieEntity
 import com.example.wewatch.screens.AddScreen
 import com.example.wewatch.screens.MainScreen
 import com.example.wewatch.screens.SearchScreen
-import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation(
@@ -39,9 +36,10 @@ fun AppNavigation(
     val navController = rememberNavController()
     var selectedMovieFromSearch by remember { mutableStateOf<MovieEntity?>(null) }
 
-    // Для отладки - смотрим текущий стек
-    navController.addOnDestinationChangedListener { _, destination, _ ->
-        Log.d("Navigation", "Current destination: ${destination.route}")
+    LaunchedEffect(navController) {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            Log.d("Navigation", "Current destination: ${destination.route}")
+        }
     }
 
     NavHost(navController, startDestination = "main",  modifier = modifier) {
@@ -78,7 +76,9 @@ fun AppNavigation(
                 onDeleteMovie = onDeleteMovie,
                 onAddClick = {
                     selectedMovieFromSearch = null  // Сбрасываем при переходе
-                    navController.navigate("add")
+                    navController.navigate("add") {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -127,7 +127,20 @@ fun AppNavigation(
                     onAddMovie(movie)
                     selectedMovieFromSearch = null
                     navController.popBackStack()
+                },
+                onBack = {
+                    if (selectedMovieFromSearch != null) {
+                        val movie = selectedMovieFromSearch
+                        selectedMovieFromSearch = null
+
+                        navController.navigate("search/${movie!!.title}/${movie.year}") {
+                            launchSingleTop = true
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
                 }
+
             )
         }
 
@@ -165,7 +178,6 @@ fun AppNavigation(
             val title = backStackEntry.arguments?.getString("title") ?: ""
             val year = backStackEntry.arguments?.getString("year")?.takeIf { it.isNotBlank() }
 
-            Log.d("Navigation", "SearchScreen composable, title=$title, year=$year")
             Log.d("Navigation", "SearchScreen composable, back stack entry: ${backStackEntry.destination.route}")
 
             // Загружаем результаты при входе

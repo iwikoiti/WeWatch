@@ -54,7 +54,7 @@ fun MainScreen(
                 FloatingActionButton(onClick = onAddClick) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_add_24),  // название твоего файла
-                        contentDescription = "Delete"
+                        contentDescription = "Add"
                     )
                 }
             }

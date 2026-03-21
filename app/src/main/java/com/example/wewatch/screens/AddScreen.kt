@@ -1,5 +1,6 @@
 package com.example.wewatch.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,10 +29,15 @@ fun AddScreen(
     selectedMovie: MovieEntity?,
     onSearchAll: (String, String?) -> Unit,
     onAddMovie: (MovieEntity) -> Unit,
+    onBack: () -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     var year by remember { mutableStateOf("") }
     var foundMovie by remember { mutableStateOf<MovieEntity?>(null) }
+
+    BackHandler {
+        onBack()
+    }
 
     // Сбрасываем foundMovie когда selectedMovie становится null (при возврате из SearchScreen без выбора)
     LaunchedEffect(selectedMovie) {
@@ -102,7 +108,8 @@ fun AddScreen(
                 model = displayMovie.poster,
                 contentDescription = displayMovie.title,
                 modifier = Modifier
-                    .size(400.dp, 500.dp),
+                    .fillMaxWidth()
+                    .height(450.dp),
                 contentScale = ContentScale.Fit
             )
 

@@ -1,5 +1,6 @@
 package com.example.wewatch.screens.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,12 +18,14 @@ import com.example.wewatch.model.MovieEntity
 fun MovieItem(
     movie: MovieEntity,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    showCheckbox: Boolean = true
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
+            .clickable { onCheckedChange(!checked) }
     ) {
 
         AsyncImage(
@@ -39,11 +42,13 @@ fun MovieItem(
 
             Text(movie.title)
             Text(movie.year)
+            Text(movie.type)
         }
-
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
+        if (showCheckbox) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = onCheckedChange
+            )
+        }
     }
 }
