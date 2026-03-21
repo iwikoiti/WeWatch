@@ -51,8 +51,7 @@ class MainActivity : ComponentActivity() {
                             movies.forEach { deleteMovie(it) }
                         },
                         onSearchMovies = { title, year -> searchMovies(title, year) },
-                        onSearchSingleMovie = { title, year, onResult ->
-                            onSearchSingleMovie(title, year, onResult) }
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
@@ -75,19 +74,6 @@ class MainActivity : ComponentActivity() {
                 }
                 is com.example.wewatch.api.ApiResult.Error -> {
                     searchResults = emptyList()
-                }
-            }
-        }
-    }
-
-    private fun onSearchSingleMovie(title: String, year: String?, onResult: (MovieEntity?) -> Unit) {
-        lifecycleScope.launch {
-            when (val result = repository.getMovie(title, year)) {
-                is ApiResult.Success -> {
-                    onResult(result.movies.firstOrNull())
-                }
-                is ApiResult.Error -> {
-                    onResult(null)
                 }
             }
         }

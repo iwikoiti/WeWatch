@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,14 +27,24 @@ import com.example.wewatch.model.MovieEntity
 fun AddScreen(
     selectedMovie: MovieEntity?,
     onSearchAll: (String, String?) -> Unit,
-    onSearchSingle: (String, String?, (MovieEntity?) -> Unit) -> Unit,
-    onAddMovie: (MovieEntity) -> Unit
+    onAddMovie: (MovieEntity) -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var year by remember { mutableStateOf("") }
-    var isSearching by remember { mutableStateOf(false) }
     var foundMovie by remember { mutableStateOf<MovieEntity?>(null) }
+
+    // Сбрасываем foundMovie когда selectedMovie становится null (при возврате из SearchScreen без выбора)
+    LaunchedEffect(selectedMovie) {
+        if (selectedMovie == null) {
+            foundMovie = null
+            title = ""
+            year = ""
+        }
+    }
+
+    // Используем фильм из поиска, если есть
     val displayMovie = selectedMovie ?: foundMovie
+
     if (displayMovie != null && title != displayMovie.title) {
         title = displayMovie.title
         year = displayMovie.year
@@ -53,7 +64,6 @@ fun AddScreen(
                 foundMovie = null },
             label = { Text("Movie title") },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isSearching
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -66,41 +76,23 @@ fun AddScreen(
             },
             label = { Text("Year") },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isSearching
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                if (title.isNotBlank()) {
-                    onSearchAll(title, year)
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isSearching
-        ) {
-            Text("Search all")
+        if (displayMovie == null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    if (title.isNotBlank()) {
+                        onSearchAll(title, year)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Search")
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = {
-                if (title.isNotBlank()) {
-                    isSearching = true
-                    onSearchSingle(title, year) { movie ->
-                        foundMovie = movie
-                        isSearching = false
-
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isSearching
-        ) {
-            Text(if (isSearching) "Searching..." else "Search single")
-        }
 
         // Постер найденного фильма
         if (displayMovie != null && displayMovie.poster.isNotBlank()) {
@@ -110,11 +102,11 @@ fun AddScreen(
                 model = displayMovie.poster,
                 contentDescription = displayMovie.title,
                 modifier = Modifier
-                    .size(200.dp, 300.dp),
+                    .size(400.dp, 500.dp),
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Кнопка добавления
             Button(
