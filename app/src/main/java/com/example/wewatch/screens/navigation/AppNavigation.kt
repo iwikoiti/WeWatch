@@ -36,12 +36,6 @@ fun AppNavigation(
     val navController = rememberNavController()
     var selectedMovieFromSearch by remember { mutableStateOf<MovieEntity?>(null) }
 
-    LaunchedEffect(navController) {
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            Log.d("Navigation", "Current destination: ${destination.route}")
-        }
-    }
-
     NavHost(navController, startDestination = "main",  modifier = modifier) {
         composable(
             route = "main",
@@ -70,7 +64,6 @@ fun AppNavigation(
                 ) + fadeOut(animationSpec = tween(300))
             }
         ) {
-            Log.d("Navigation", "MainScreen composable")
             MainScreen(
                 movies = movies,
                 onDeleteMovie = onDeleteMovie,
@@ -110,13 +103,11 @@ fun AppNavigation(
                 ) + fadeOut(animationSpec = tween(300))
             }
         ) {
-            Log.d("Navigation", "AddScreen composable, selectedMovie = $selectedMovieFromSearch")
             AddScreen(
                 selectedMovie = selectedMovieFromSearch,
                 // search all
                 onSearchAll = { title, year ->
                     if (title.isNotBlank()) {
-                        Log.d("Navigation", "Navigating to search from add, current back stack: ${navController.previousBackStackEntry?.destination?.route}")
                         onSearchMovies(title, year)
                         navController.navigate("search/$title/${year ?: ""}")
                     }
@@ -177,8 +168,6 @@ fun AppNavigation(
         ) { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title") ?: ""
             val year = backStackEntry.arguments?.getString("year")?.takeIf { it.isNotBlank() }
-
-            Log.d("Navigation", "SearchScreen composable, back stack entry: ${backStackEntry.destination.route}")
 
             // Загружаем результаты при входе
             if (searchResults.isEmpty() && title.isNotBlank()) {
