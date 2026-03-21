@@ -15,7 +15,12 @@ fun SearchScreen(
         items(movies) { movie ->
             MovieItem(
                 movie = movie,
-                onCheckedChange = { }
+                checked = false,
+                onCheckedChange = { isChecked ->
+                    if (isChecked) {
+                        onMovieClick(movie)
+                    }
+                }
             )
         }
     }
