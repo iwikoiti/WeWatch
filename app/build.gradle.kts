@@ -67,9 +67,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.coil)
     implementation(libs.androidx.coil.network.okhttp)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.navigation)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.livedata)
-    implementation(libs.androidx.lifecycle.runtime)
 }
