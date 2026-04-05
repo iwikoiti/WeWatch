@@ -21,9 +21,6 @@ data class ApiResponse(
     fun isMovie(): Boolean{
         return imdbId!=null && title!=null && year!=null && type!=null && poster!=null
     }
-    fun isSearch(): Boolean{
-        return response=="True" && movies!=null && totalResults!=null
-    }
     fun toMovie(): MovieEntity? {
         return if (imdbId!=null && title!=null && year!=null && type!=null && poster!=null){
             MovieEntity(
