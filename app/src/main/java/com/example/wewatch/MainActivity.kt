@@ -32,7 +32,6 @@ class MainActivity : ComponentActivity() {
     // Состояние Activity/Controller
     private var movies by mutableStateOf<List<MovieEntity>>(emptyList())
     private var searchResults by mutableStateOf<List<MovieEntity>>(emptyList())
-    private var selectedMovie by mutableStateOf<MovieEntity?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,10 +68,10 @@ class MainActivity : ComponentActivity() {
     private fun searchMovies(title: String, year: String?) {
         lifecycleScope.launch {
             when(val result = repository.searchMovies(title, year)) {
-                is com.example.wewatch.api.ApiResult.Success -> {
+                is ApiResult.Success -> {
                     searchResults = result.movies.filterNotNull()
                 }
-                is com.example.wewatch.api.ApiResult.Error -> {
+                is ApiResult.Error -> {
                     searchResults = emptyList()
                 }
             }
