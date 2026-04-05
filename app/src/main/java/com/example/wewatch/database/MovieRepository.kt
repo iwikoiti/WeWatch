@@ -26,22 +26,4 @@ class MovieRepository(private val apiService: ApiService)  {
             ApiResult.Error(e.message ?: "Unknown error")
         }
     }
-
-    suspend fun getMovie(title: String, year: String? = null): ApiResult {
-        return try {
-            val response = apiService.getMovie(title, year)
-
-            // Проверка успешного ответа
-            if (response.response == "True") {
-                val movies = listOf(response.toMovie())
-                ApiResult.Success(movies)
-            } else {
-                // Ошибка от API
-                ApiResult.Error(response.error ?: "Unknown API error")
-            }
-        } catch (e: Exception) {
-            // Исключение при выполнении запроса
-            ApiResult.Error(e.message ?: "Unknown error")
-        }
-    }
 }

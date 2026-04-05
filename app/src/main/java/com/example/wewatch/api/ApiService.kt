@@ -10,10 +10,4 @@ interface ApiService {
         @Query("s") search: String,
         @Query("y") year: String? = null
     ): ApiResponse
-
-    @GET("/")
-    suspend fun getMovie(
-        @Query("t") search: String,
-        @Query("y") year: String? = null
-    ): ApiResponse
 }
