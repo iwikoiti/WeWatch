@@ -7,90 +7,54 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wewatch.api.ApiClient
-import com.example.wewatch.api.ApiResult
 import com.example.wewatch.database.MovieDatabase
 import com.example.wewatch.database.MovieRepository
-import com.example.wewatch.model.MovieEntity
 import com.example.wewatch.screens.navigation.AppNavigation
 import com.example.wewatch.ui.theme.WeWatchTheme
-import kotlinx.coroutines.launch
+import com.example.wewatch.viewmodel.AddViewModel
+import com.example.wewatch.viewmodel.MainViewModel
+import com.example.wewatch.viewmodel.MovieViewModelFactory
+import com.example.wewatch.viewmodel.SearchViewModel
 
-//Controller
 class MainActivity : ComponentActivity() {
     private lateinit var db: MovieDatabase
     private lateinit var repository: MovieRepository
 
-    // Состояние Activity/Controller
-    private var movies by mutableStateOf<List<MovieEntity>>(emptyList())
-    private var searchResults by mutableStateOf<List<MovieEntity>>(emptyList())
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         db = MovieDatabase.getDatabase(this)
         repository = MovieRepository(ApiClient.apiService)
-        loadMoviesFromDb()
+
         setContent {
             WeWatchTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavigation(
-                        movies = movies,
-                        searchResults = searchResults,
-                        onAddMovie = { addMovie(it) },
-                        onDeleteMovie = { movies ->
-                            movies.forEach { deleteMovie(it) }
-                        },
-                        onSearchMovies = { title, year -> searchMovies(title, year) },
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                WeWatchApp(db, repository)
             }
         }
     }
 
-    //Загрузка фильмов
-    private fun loadMoviesFromDb() {
-        lifecycleScope.launch {
-            movies = db.movieDao().getAllMovies()
-        }
-    }
+    @Composable
+    fun WeWatchApp(
+        db: MovieDatabase,
+        repository: MovieRepository
+    ){
+        val factory = MovieViewModelFactory(repository,db)
+        val mainViewModel: MainViewModel = viewModel(factory = factory)
+        val searchViewModel: SearchViewModel = viewModel(factory = factory)
+        val addViewModel: AddViewModel = viewModel(factory = factory)
 
-    //Поиск фильмов
-    private fun searchMovies(title: String, year: String?) {
-        lifecycleScope.launch {
-            when(val result = repository.searchMovies(title, year)) {
-                is ApiResult.Success -> {
-                    searchResults = result.movies.filterNotNull()
-                }
-                is ApiResult.Error -> {
-                    searchResults = emptyList()
-                }
-            }
-        }
-    }
-
-    //Добавление фильма
-    private fun addMovie(movie: MovieEntity) {
-        lifecycleScope.launch {
-            db.movieDao().insert(movie)
-            loadMoviesFromDb()
-        }
-    }
-
-    //Удаление фильма
-    private fun deleteMovie(movie: MovieEntity) {
-        lifecycleScope.launch {
-            db.movieDao().delete(movie)
-            loadMoviesFromDb()
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            AppNavigation(
+                mainViewModel = mainViewModel,
+                searchViewModel = searchViewModel,
+                addViewModel = addViewModel,
+                modifier = Modifier.padding(innerPadding)
+            )
         }
     }
 }

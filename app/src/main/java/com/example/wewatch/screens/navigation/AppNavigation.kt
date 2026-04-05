@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,14 +22,15 @@ import com.example.wewatch.model.MovieEntity
 import com.example.wewatch.screens.AddScreen
 import com.example.wewatch.screens.MainScreen
 import com.example.wewatch.screens.SearchScreen
+import com.example.wewatch.viewmodel.AddViewModel
+import com.example.wewatch.viewmodel.MainViewModel
+import com.example.wewatch.viewmodel.SearchViewModel
 
 @Composable
 fun AppNavigation(
-    movies: List<MovieEntity>,
-    searchResults: List<MovieEntity>,
-    onAddMovie: (MovieEntity) -> Unit,
-    onDeleteMovie: (List<MovieEntity>) -> Unit,
-    onSearchMovies: (String, String?) -> Unit,
+    mainViewModel: MainViewModel,
+    searchViewModel: SearchViewModel,
+    addViewModel: AddViewModel,
     modifier: Modifier = Modifier
 ) {
 
@@ -64,8 +66,8 @@ fun AppNavigation(
             }
         ) {
             MainScreen(
-                movies = movies,
-                onDeleteMovie = onDeleteMovie,
+                movies = mainViewModel.movies,
+                onDeleteMovie = { moviesList -> mainViewModel.deleteMovies(moviesList) },
                 onAddClick = {
                     selectedMovieFromSearch = null  // Сбрасываем при переходе
                     navController.navigate("add") {
@@ -107,14 +109,15 @@ fun AppNavigation(
                 // search all
                 onSearchAll = { title, year ->
                     if (title.isNotBlank()) {
-                        onSearchMovies(title, year)
+                        searchViewModel.searchMovies(title, year)
                         navController.navigate("search/$title/${year ?: ""}")
                     }
 
                 },
                 // add movie
                 onAddMovie = { movie ->
-                    onAddMovie(movie)
+                    addViewModel.addMovie(movie)
+                    mainViewModel.loadMoviesFromDb()
                     selectedMovieFromSearch = null
                     navController.popBackStack()
                 },
@@ -122,7 +125,6 @@ fun AppNavigation(
                     if (selectedMovieFromSearch != null) {
                         val movie = selectedMovieFromSearch
                         selectedMovieFromSearch = null
-
                         navController.navigate("search/${movie!!.title}/${movie.year}") {
                             launchSingleTop = true
                         }
@@ -169,12 +171,18 @@ fun AppNavigation(
             val year = backStackEntry.arguments?.getString("year")?.takeIf { it.isNotBlank() }
 
             // Загружаем результаты при входе
-            if (searchResults.isEmpty() && title.isNotBlank()) {
-                onSearchMovies(title, year)
+//            if (searchResults.isEmpty() && title.isNotBlank()) {
+//                onSearchMovies(title, year)
+//            }
+
+            LaunchedEffect(title, year) {
+                if (title.isNotBlank()) {
+                    searchViewModel.searchMovies(title, year)
+                }
             }
 
             SearchScreen(
-                movies = searchResults,
+                movies = searchViewModel.searchResults,
                 onMovieClick = { movie ->
                     // При клике на фильм сохраняем его и возвращаемся в AddScreen
                     selectedMovieFromSearch = movie
