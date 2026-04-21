@@ -17,7 +17,6 @@ import com.example.wewatch.screens.navigation.AppNavigation
 import com.example.wewatch.ui.theme.WeWatchTheme
 import com.example.wewatch.viewmodel.AddViewModel
 import com.example.wewatch.viewmodel.MainViewModel
-import com.example.wewatch.viewmodel.MovieViewModelFactory
 import com.example.wewatch.viewmodel.SearchViewModel
 
 class MainActivity : ComponentActivity() {
