@@ -18,6 +18,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.wewatch.model.MovieEntity
+import com.example.wewatch.mvi.AddIntent
+import com.example.wewatch.mvi.MainIntent
+import com.example.wewatch.mvi.SearchIntent
 import com.example.wewatch.screens.AddScreen
 import com.example.wewatch.screens.MainScreen
 import com.example.wewatch.screens.SearchScreen
@@ -65,13 +68,13 @@ fun AppNavigation(
             }
         ) {
             MainScreen(
-                movies = mainViewModel.movies,
-                onDeleteMovie = { moviesList -> mainViewModel.deleteMovies(moviesList) },
+                movies = mainViewModel.state.movies,
+                onDeleteMovie = { moviesList ->
+                    mainViewModel.sendIntent(MainIntent.DeleteMovies(moviesList))
+                },
                 onAddClick = {
-                    selectedMovieFromSearch = null  // Сбрасываем при переходе
-                    navController.navigate("add") {
-                        launchSingleTop = true
-                    }
+                    selectedMovieFromSearch = null
+                    navController.navigate("add") { launchSingleTop = true }
                 }
             )
         }
@@ -105,18 +108,15 @@ fun AppNavigation(
         ) {
             AddScreen(
                 selectedMovie = selectedMovieFromSearch,
-                // search all
                 onSearchAll = { title, year ->
                     if (title.isNotBlank()) {
-                        searchViewModel.searchMovies(title, year)
+                        searchViewModel.sendIntent(SearchIntent.Search(title, year))
                         navController.navigate("search/$title/${year ?: ""}")
                     }
-
                 },
-                // add movie
                 onAddMovie = { movie ->
-                    addViewModel.addMovie(movie)
-                    mainViewModel.loadMoviesFromDb()
+                    addViewModel.sendIntent(AddIntent.AddMovie(movie))
+                    mainViewModel.sendIntent(MainIntent.LoadMovies)
                     selectedMovieFromSearch = null
                     navController.popBackStack()
                 },
@@ -131,7 +131,6 @@ fun AppNavigation(
                         navController.popBackStack()
                     }
                 }
-
             )
         }
 
@@ -169,21 +168,15 @@ fun AppNavigation(
             val title = backStackEntry.arguments?.getString("title") ?: ""
             val year = backStackEntry.arguments?.getString("year")?.takeIf { it.isNotBlank() }
 
-            // Загружаем результаты при входе
-//            if (searchResults.isEmpty() && title.isNotBlank()) {
-//                onSearchMovies(title, year)
-//            }
-
             LaunchedEffect(title, year) {
                 if (title.isNotBlank()) {
-                    searchViewModel.searchMovies(title, year)
+                    searchViewModel.sendIntent(SearchIntent.Search(title, year))
                 }
             }
 
             SearchScreen(
-                movies = searchViewModel.searchResults,
+                movies = searchViewModel.state.searchResults,
                 onMovieClick = { movie ->
-                    // При клике на фильм сохраняем его и возвращаемся в AddScreen
                     selectedMovieFromSearch = movie
                     navController.popBackStack()
                 }

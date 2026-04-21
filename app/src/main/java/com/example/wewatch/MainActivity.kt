@@ -42,10 +42,9 @@ class MainActivity : ComponentActivity() {
         db: MovieDatabase,
         repository: MovieRepository
     ){
-        val factory = MovieViewModelFactory(repository,db)
-        val mainViewModel: MainViewModel = viewModel(factory = factory)
-        val searchViewModel: SearchViewModel = viewModel(factory = factory)
-        val addViewModel: AddViewModel = viewModel(factory = factory)
+        val mainViewModel: MainViewModel = viewModel { MainViewModel(db) }
+        val searchViewModel: SearchViewModel = viewModel { SearchViewModel(repository) }
+        val addViewModel: AddViewModel = viewModel { AddViewModel(db) }
 
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             AppNavigation(
