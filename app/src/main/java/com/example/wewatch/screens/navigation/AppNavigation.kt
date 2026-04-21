@@ -75,6 +75,9 @@ fun AppNavigation(
                 onAddClick = {
                     selectedMovieFromSearch = null
                     navController.navigate("add") { launchSingleTop = true }
+                },
+                onResume = {
+                    mainViewModel.sendIntent(MainIntent.LoadMovies)  // Обновляем при возврате
                 }
             )
         }

@@ -11,6 +11,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,10 +27,14 @@ import com.example.wewatch.screens.components.MovieItem
 fun MainScreen(
     movies: List<MovieEntity>,
     onDeleteMovie: (List<MovieEntity>) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onResume: () -> Unit
 ) {
-    var selectedMovies by remember { mutableStateOf(setOf<String>()) }
 
+    var selectedMovies by remember { mutableStateOf(setOf<String>()) }
+    LaunchedEffect(Unit) {
+        onResume()
+    }
     Scaffold(
         floatingActionButton = {
             Row {
