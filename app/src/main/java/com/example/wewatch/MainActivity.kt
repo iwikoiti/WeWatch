@@ -10,14 +10,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wewatch.api.ApiClient
-import com.example.wewatch.database.MovieDatabase
-import com.example.wewatch.database.MovieRepository
-import com.example.wewatch.screens.navigation.AppNavigation
+import com.example.wewatch.data.api.ApiClient
+import com.example.wewatch.data.database.MovieDatabase
+import com.example.wewatch.data.database.MovieRepository
+import com.example.wewatch.presentation.screens.navigation.AppNavigation
 import com.example.wewatch.ui.theme.WeWatchTheme
-import com.example.wewatch.viewmodel.AddViewModel
-import com.example.wewatch.viewmodel.MainViewModel
-import com.example.wewatch.viewmodel.SearchViewModel
+import com.example.wewatch.presentation.viewmodel.AddViewModel
+import com.example.wewatch.presentation.viewmodel.MainViewModel
+import com.example.wewatch.presentation.viewmodel.SearchViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var db: MovieDatabase
