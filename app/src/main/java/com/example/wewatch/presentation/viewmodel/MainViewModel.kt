@@ -18,7 +18,8 @@ class MainViewModel(
     private val deleteMoviesUseCase: DeleteMoviesUseCase
 ) : ViewModel() {
 
-    private val state = mutableStateOf(MainState())
+    private val _state = mutableStateOf(MainState())
+    val state: MainState by _state
 
     private val intents = Channel<MainIntent>(Channel.UNLIMITED)
 
@@ -44,9 +45,9 @@ class MainViewModel(
 
     private fun loadMovies() {
         viewModelScope.launch {
-            state.value = state.value.copy(isLoading = true)
+            _state.value = _state.value.copy(isLoading = true)
             val movies = getMoviesUseCase()
-            state.value = state.value.copy(movies = movies, isLoading = false)
+            _state.value = _state.value.copy(movies = movies, isLoading = false)
         }
     }
 

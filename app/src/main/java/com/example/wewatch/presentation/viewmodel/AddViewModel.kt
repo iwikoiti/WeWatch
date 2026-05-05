@@ -1,5 +1,6 @@
 package com.example.wewatch.presentation.viewmodel
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +16,8 @@ class AddViewModel(
     private val addMovieUseCase: AddMovieUseCase
 ) : ViewModel() {
 
-    private val state = mutableStateOf(AddState())
+    private val _state = mutableStateOf(AddState())
+    val state: AddState by _state
 
     private val intents = Channel<AddIntent>(Channel.UNLIMITED)
 
@@ -39,9 +41,9 @@ class AddViewModel(
 
     private fun addMovie(movie: MovieEntity) {
         viewModelScope.launch {
-            state.value = state.value.copy(isLoading = true)
+            _state.value = _state.value.copy(isLoading = true)
             addMovieUseCase(movie)
-            state.value = state.value.copy(isAdded = true, isLoading = false)
+            _state.value = _state.value.copy(isAdded = true, isLoading = false)
         }
     }
 }

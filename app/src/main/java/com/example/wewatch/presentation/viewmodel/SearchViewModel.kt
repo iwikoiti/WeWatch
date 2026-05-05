@@ -15,7 +15,8 @@ class SearchViewModel(
     private val searchMoviesUseCase: SearchMoviesUseCase
 ) : ViewModel() {
 
-    private val state = mutableStateOf(SearchState())
+    private val _state = mutableStateOf(SearchState())
+    val state: SearchState by _state
 
     private val intents = Channel<SearchIntent>(Channel.UNLIMITED)
 
@@ -39,17 +40,17 @@ class SearchViewModel(
 
     private fun searchMovies(title: String, year: String?) {
         viewModelScope.launch {
-            state.value = state.value.copy(isLoading = true, error = null)
+            _state.value = _state.value.copy(isLoading = true, error = null)
 
             val result = searchMoviesUseCase(title, year)
 
             if (result.isSuccess) {
-                state.value = state.value.copy(
+                _state.value = _state.value.copy(
                     searchResults = result.getOrNull() ?: emptyList(),
                     isLoading = false
                 )
             } else {
-                state.value = state.value.copy(
+                _state.value = _state.value.copy(
                     searchResults = emptyList(),
                     isLoading = false,
                     error = result.exceptionOrNull()?.message ?: "Unknown error"
