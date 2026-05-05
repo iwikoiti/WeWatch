@@ -1,11 +1,10 @@
 package com.example.wewatch.presentation.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wewatch.data.api.ApiResult
-import com.example.wewatch.data.database.MovieRepository
+import com.example.wewatch.domain.usecase.SearchMoviesUseCase
 import com.example.wewatch.presentation.mvi.SearchIntent
 import com.example.wewatch.presentation.mvi.SearchState
 import kotlinx.coroutines.channels.Channel
@@ -13,11 +12,10 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
-    private val repository: MovieRepository
+    private val searchMoviesUseCase: SearchMoviesUseCase
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(SearchState())
-    val state: SearchState by _state
+    private val state = mutableStateOf(SearchState())
 
     private val intents = Channel<SearchIntent>(Channel.UNLIMITED)
 
@@ -41,22 +39,21 @@ class SearchViewModel(
 
     private fun searchMovies(title: String, year: String?) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
+            state.value = state.value.copy(isLoading = true, error = null)
 
-            when (val result = repository.searchMovies(title, year)) {
-                is ApiResult.Success -> {
-                    _state.value = _state.value.copy(
-                        searchResults = result.movies.filterNotNull(),
-                        isLoading = false
-                    )
-                }
-                is ApiResult.Error -> {
-                    _state.value = _state.value.copy(
-                        searchResults = emptyList(),
-                        isLoading = false,
-                        error = result.message
-                    )
-                }
+            val result = searchMoviesUseCase(title, year)
+
+            if (result.isSuccess) {
+                state.value = state.value.copy(
+                    searchResults = result.getOrNull() ?: emptyList(),
+                    isLoading = false
+                )
+            } else {
+                state.value = state.value.copy(
+                    searchResults = emptyList(),
+                    isLoading = false,
+                    error = result.exceptionOrNull()?.message ?: "Unknown error"
+                )
             }
         }
     }

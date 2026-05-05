@@ -1,11 +1,12 @@
 package com.example.wewatch.presentation.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wewatch.data.database.MovieDatabase
 import com.example.wewatch.domain.model.MovieEntity
+import com.example.wewatch.domain.usecase.DeleteMoviesUseCase
+import com.example.wewatch.domain.usecase.GetMoviesUseCase
 import com.example.wewatch.presentation.mvi.MainIntent
 import com.example.wewatch.presentation.mvi.MainState
 import kotlinx.coroutines.channels.Channel
@@ -13,11 +14,11 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val database: MovieDatabase
+    private val getMoviesUseCase: GetMoviesUseCase,
+    private val deleteMoviesUseCase: DeleteMoviesUseCase
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(MainState())
-    val state: MainState by _state
+    private val state = mutableStateOf(MainState())
 
     private val intents = Channel<MainIntent>(Channel.UNLIMITED)
 
@@ -43,17 +44,16 @@ class MainViewModel(
 
     private fun loadMovies() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            val movies = database.movieDao().getAllMovies()
-            _state.value = _state.value.copy(movies = movies, isLoading = false)
+            state.value = state.value.copy(isLoading = true)
+            val movies = getMoviesUseCase()
+            state.value = state.value.copy(movies = movies, isLoading = false)
         }
     }
 
     private fun deleteMovies(moviesToDelete: List<MovieEntity>) {
         viewModelScope.launch {
-            val ids = moviesToDelete.map { it.imdbId }
-            database.movieDao().deleteMoviesByIds(ids)
-            sendIntent(MainIntent.LoadMovies)
+            deleteMoviesUseCase(moviesToDelete)
+            loadMovies()
         }
     }
 }
